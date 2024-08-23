@@ -33,6 +33,7 @@ def plotter(x, y, colour, xlabel, ylabel, title, file):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.savefig(f'Plot - {file}.png', bbox_inches="tight")
+    plt.clf()
 
 async def fetch(x):
     if x==None:
