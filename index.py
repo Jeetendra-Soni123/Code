@@ -3,9 +3,7 @@ import asyncio
 import tkinter as tk
 from tkinter import Toplevel, messagebox as msgbox
 import matplotlib.pyplot as plt
-import seaborn as sns; sns.set()
 import aiohttp
-from tkinter.ttk import *
 # Variables
 root=tk.Tk()
 options = {
@@ -80,9 +78,7 @@ async def valuefetch():
             close.append(x["4. close"])
             volume.append(x["5. volume"])
 
-        plotter(date, high, "#32a852", "Date", "High", "Changes in High", "date-high")
-        plotter(date, low, "#32a852", "Date", "Low", "Changes in Low", "date-low")
-        plotter(date, open, "#32a852", "Date", "Open", "Changes in High", "date-high")
+        # Line 147 - 151 will come here
         # New window
         newWindow = Toplevel(root)
         newWindow.title("Analysis")
@@ -132,6 +128,8 @@ raw = {
     },
   }
 }
+
+
 raw = raw["Time Series (Daily)"]
 date, high, open, close, volume, low = [], [], [], [], [], []
 for i in raw:
@@ -145,9 +143,10 @@ for i in raw:
     volume.append(x["5. volume"])
 
 print(date, high, open, close, volume, low)
-'''
+
 plotter(date, high, "#32a852", "Date", "High", "Changes in High", "date-high")
 plotter(date, low, "#32a852", "Date", "Low", "Changes in Low", "date-low")
 plotter(date, open, "#32a852", "Date", "Open", "Changes in Open", "date-open")
-'''
+plotter(date, close, "#32a852", "Date", "Close", "Changes in Close", "date-close")
+plotter(date, volume, "#32a852", "Date", "Volume", "Changes in Volume", "date-volume")
 #root.mainloop()
