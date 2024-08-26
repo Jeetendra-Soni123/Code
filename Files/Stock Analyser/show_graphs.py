@@ -1,10 +1,10 @@
-from tkinter import PhotoImage, Toplevel, Frame, Canvas, Scrollbar, messagebox as msgbox
+from tkinter import PhotoImage, Frame, Canvas, Scrollbar
 import tkinter as tk
 newWindow = tk.Tk()
 newWindow.title("Scrollable Image Viewer")
 newWindow.attributes('-fullscreen', True)
 newWindow.resizable(False, False)
-newWindow.bind("<Escape>", lambda event: newWindow.destroy())
+newWindow.bind("<Escape>", lambda event: newWindow.minsize())
 
 
 # Create a main frame to hold the canvas and vertical scrollbar
@@ -37,7 +37,7 @@ file_name=['date-high','date-low','date-open','date-close','date-volume']
 for file_nam in file_name:
     try:
         # Load the image file
-        graph_img = PhotoImage(file=f"Plot - {file_nam}.png")
+        graph_img = PhotoImage(file=f"./graphs/Plot - {file_nam}.png")
 
         # Get the screen width and adjust the image width to fit the screen
         screen_width = newWindow.winfo_screenwidth()

@@ -1,11 +1,14 @@
 # Imports
+import subprocess
 import asyncio
 import tkinter as tk
-from tkinter import PhotoImage, Toplevel, Frame, Canvas, Scrollbar, messagebox as msgbox
+from tkinter import messagebox as msgbox
 import matplotlib.pyplot as plt
 import aiohttp
-import numpy as np
 import math as mt
+import os
+import shutil
+
 # Variables
 root=tk.Tk()
 options = {
@@ -33,13 +36,10 @@ options = {
     "Vanguard Small Cap Index": "VB",
     "MSCI US Smallcap Value": "VCV",
     "Vix Index": "VIX",
-    "Vanguard Small Cap Index": "VXCV",
     "CAC 40 Index": "XAX",
     "NYSE Composite": "XBX",
     "FTSE 100 Index": "XCAX",
     "Xetra Dax": "XDAX",
-    "NYSE Composite": "XNET",
-    "FTSE 100 Index": "XSE"
            }
 names = list(options.keys())
 value_inside = tk.StringVar(root) 
@@ -48,6 +48,9 @@ data = 0
 height, width = 300, 350
 
 # Functions
+def run_script():
+    subprocess.run(["python", "show_graphs.py"], check=True)
+
 
 def plotter(x, y, colour, xlabel, ylabel, title, file):
     plt.rcParams["figure.figsize"] = [20, 3.5]
@@ -59,7 +62,7 @@ def plotter(x, y, colour, xlabel, ylabel, title, file):
     plt.xlabel(xlabel, labelpad=55)
     plt.ylabel(ylabel, labelpad=30)
     plt.ylim([mt.floor(min(y)), mt.ceil(max(y))])
-    plt.savefig(f'Plot - {file}.png', bbox_inches="tight")
+    plt.savefig(f'./graphs/Plot - {file}.png', bbox_inches="tight")
     plt.clf()
 
 async def fetch(x):
@@ -103,74 +106,21 @@ async def valuefetch():
                 volume.append(float(x["5. volume"]))
             msgbox.showinfo("COMPLETED", "STOCK MARKET ANALYZED\nCLICK OK TO SEE DATA")
             file_name=['date-high','date-low','date-open','date-close','date-volume']
+            if os.path.exists("graphs"):
+                # Delete the existing folder and its contents
+                shutil.rmtree("graphs")
+
+            # Create a new 'graphs' folder
+            os.makedirs("graphs")
+
             plotter(date, high, "#32a852", "Date", "High", "Changes in High", file_name[0])
             plotter(date, low, "#32a852", "Date", "Low", "Changes in Low", file_name[1])
             plotter(date, open, "#32a852", "Date", "Open", "Changes in Open", file_name[2])
             plotter(date, close, "#32a852", "Date", "Close", "Changes in Close", file_name[3])
             plotter(date, volume, "#32a852", "Date", "Volume", "Changes in Volume", file_name[4])
-            # New window
-            newWindow = Toplevel(root)
-            newWindow.title("Analysis")
-            #newWindow.geometry("500x400")
-            newWindow.attributes('-fullscreen', True)
-            newWindow.resizable(False, False)
-            newWindow.bind("<Escape>", lambda event: newWindow.destroy())
-
-
-            # Create a main frame to hold the canvas and vertical scrollbar
-            main_frame = Frame(newWindow)
-            main_frame.pack(fill=tk.BOTH, expand=True)
-
-            # Create a canvas within the main frame
-            canvas = Canvas(main_frame)
-            canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-            # Add a vertical scrollbar to the main frame
-            y_scrollbar = Scrollbar(main_frame, orient=tk.VERTICAL, command=canvas.yview)
-            y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-            # Add a horizontal scrollbar directly to the newWindow, spanning full width
-            x_scrollbar = Scrollbar(newWindow, orient=tk.HORIZONTAL, command=canvas.xview)
-            x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
-
-            # Configure the canvas to work with the scrollbars
-            canvas.configure(yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set)
-
-            # Create a frame within the canvas to hold the images
-            image_frame = Frame(canvas)
-            canvas.create_window((0, 0), window=image_frame, anchor="nw")
-
-            # List to keep references to the PhotoImage objects
-            images = []
-
-            # Load and display images
-            for file in file_name:
-                try:
-                    # Load the image file
-                    graph_img = PhotoImage(file=f"Plot - {file}.png")
-
-                    # Get the screen width and adjust the image width to fit the screen
-                    screen_width = newWindow.winfo_screenwidth()
-                    img_width = graph_img.width()
-                    if img_width > screen_width:
-                        scaling_factor = img_width / screen_width
-                        graph_img = graph_img.subsample(int(scaling_factor))
-
-                    # Keep a reference to the image to prevent garbage collection
-                    images.append(graph_img)
-
-                    # Create a label for each image and pack it
-                    label = tk.Label(image_frame, image=graph_img)
-                    label.pack(pady=10)  # Add some vertical spacing between images
-                except Exception as e:
-                    print(f"Error loading image {file}: {e}")
-
-            # Update scroll region after all images are loaded
-            def update_scroll_region(event=None):
-                canvas.configure(scrollregion=canvas.bbox("all"))
-
-            # Bind the configure event to update scroll region dynamically
-            image_frame.bind("<Configure>", update_scroll_region)
+            
+            # Run show_graphs.py
+            run_script()
             
     except Exception as e:
         submit.config(text="Fetch Data", state=tk.NORMAL)
